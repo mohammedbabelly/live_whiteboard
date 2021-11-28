@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'Pages/active_sessions.dart';
 import 'Pages/interactive_session.dart';
 
 void main() => runApp(MaterialApp(
-      home: HomePage(),
+      home: ActiveSessionsPage(),
       debugShowCheckedModeBanner: false,
     ));
 
