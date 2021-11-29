@@ -3,6 +3,9 @@ import 'package:live_whiteboard/API/teacher_api.dart';
 import 'package:live_whiteboard/Widgets/whiteboard.dart';
 
 class InteractiveWhiteBoard extends StatefulWidget {
+  final String sessionId;
+  final String sessionName;
+  InteractiveWhiteBoard({required this.sessionId, required this.sessionName});
   @override
   _InteractiveWhiteBoardState createState() => _InteractiveWhiteBoardState();
 }
@@ -12,7 +15,7 @@ class _InteractiveWhiteBoardState extends State<InteractiveWhiteBoard> {
   late String sessionId = '';
   @override
   void initState() {
-    sessionId = "FdZBHcEJlQZEYs9cG4vf5";
+    sessionId = widget.sessionId;
     TeacherApi().connectToSocket();
     TeacherApi().listenTest(sessionId, (newPoints) {
       setState(() {
@@ -32,6 +35,7 @@ class _InteractiveWhiteBoardState extends State<InteractiveWhiteBoard> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        title: Text(widget.sessionName, style: TextStyle(color: Colors.white)),
         actions: [
           TextButton(
               onPressed: () async => await TeacherApi().startSession(sessionId),

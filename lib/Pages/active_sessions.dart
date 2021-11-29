@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:live_whiteboard/API/sessions_api.dart';
+import 'package:live_whiteboard/API/teacher_api.dart';
 import 'package:live_whiteboard/Models/sessions.dart';
 import 'package:live_whiteboard/Pages/student_whiteboard.dart';
 
@@ -78,11 +79,59 @@ class _ActiveSessionsPageState extends State<ActiveSessionsPage> {
         actions: [
           IconButton(
             icon: Icon(Icons.add),
-            onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (_) => InteractiveWhiteBoard()));
-            },
+            onPressed: () => showCreateSessionDialog(context),
           ),
         ]);
+  }
+
+  Future<void> showCreateSessionDialog(BuildContext context) async {
+    TextEditingController sessionNameController = TextEditingController();
+    TextEditingController passwordController = TextEditingController();
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Session Details'),
+            content: TextField(
+              onChanged: (value) {
+                setState(() {});
+              },
+              controller: sessionNameController,
+              decoration: InputDecoration(hintText: "Session Name"),
+            ),
+            actions: <Widget>[
+              FlatButton(
+                color: Colors.red,
+                textColor: Colors.white,
+                child: Text('Cancel'),
+                onPressed: () {
+                  setState(() {
+                    Navigator.pop(context);
+                  });
+                },
+              ),
+              FlatButton(
+                color: Colors.green,
+                textColor: Colors.white,
+                child: Text('Create'),
+                onPressed: () async {
+                  if (sessionNameController.text.isNotEmpty)
+                    await TeacherApi()
+                        .createSession(sessionNameController.text)
+                        .then((sessionId) {
+                      Navigator.pop(context);
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => InteractiveWhiteBoard(
+                                    sessionId: sessionId,
+                                    sessionName: sessionNameController.text,
+                                  )));
+                    });
+                },
+              ),
+            ],
+          );
+        });
   }
 }

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:live_whiteboard/Helpers/constants.dart';
 import 'package:live_whiteboard/Models/my_offset.dart';
@@ -10,7 +11,6 @@ class TeacherApi {
   static late IO.Socket? socket;
   IO.Socket connectToSocket() {
     final socketUrl = '${Constants.baseUrl}';
-    socket = null;
     socket = IO.io(
       socketUrl,
       OptionBuilder()
@@ -22,11 +22,11 @@ class TeacherApi {
 
     socket!.onConnect((_) {
       print('Teacher socket connected on $socketUrl');
-      print("socketId = ${socket!.id}");
+      // print("socketId = ${socket!.id}");
     });
     socket!.onDisconnect((_) {
       print('Teacher socket is disconnect!');
-      socket!.dispose();
+      socket = null;
     });
     socket!.onConnectError(
         (data) => print('Error connecting to teacher socket: $data'));
@@ -43,8 +43,7 @@ class TeacherApi {
         var list = points.map((e) {
           if (e != null) return MyOffset.fromOffset(e);
         }).toList();
-        var data = json.encode(list);
-        socket!.emit(sessionId, data);
+        socket!.emit(sessionId, json.encode(list));
       }
     } catch (_) {
       print('error emitting: _');
@@ -71,34 +70,40 @@ class TeacherApi {
   //exit$sessionID
   Future<void> startSession(String sessionId) async {
     try {
+      //BotToast.showLoading(clickClose: true);
       var url = Uri.parse('${Constants.baseUrl}/api/session/$sessionId');
       print(url);
       var response = await http.get(url);
       print('Response status: ${response.statusCode}');
       if (response.statusCode == 200) {
         print('session $sessionId started.');
+        //BotToast.closeAllLoading();
       } else
         throw Exception();
     } catch (_) {
-      print("Could not start the session.");
+      //BotToast.closeAllLoading();
+      //BotToast.showText(text: "Could not start the session!");
     }
   }
 
   Future<String> createSession(String sessionName) async {
     try {
+      //BotToast.showLoading(clickClose: true);
       var url = Uri.parse(
           '${Constants.baseUrl}/api/session?sessionName=$sessionName');
       print(url);
       var response = await http.post(url);
       print('Response status: ${response.statusCode}');
-      if (response.statusCode == 200) {
+      if (Constants.successStatusCodes.contains(response.statusCode)) {
         var sessionId = json.decode(response.body)['sessionsId'];
         print('session $sessionName started with id = $sessionId');
+        //BotToast.closeAllLoading();
         return sessionId;
       } else
         throw Exception();
     } catch (_) {
-      print("Could not start the session.");
+      //BotToast.closeAllLoading();
+      //BotToast.showText(text: "Could not create the session!");
       return '';
     }
   }

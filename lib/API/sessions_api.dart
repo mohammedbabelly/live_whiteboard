@@ -19,7 +19,7 @@ class SessionsApi {
       } else
         throw Exception();
     } catch (_) {
-      print("Could not start the session.");
+      print("Could not get the sessions.");
       return [];
     }
   }
