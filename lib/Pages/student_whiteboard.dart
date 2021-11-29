@@ -15,9 +15,10 @@ class _StudentWhiteBoardState extends State<StudentWhiteBoard> {
   @override
   void initState() {
     sessionId = widget.sessionId;
-    StudentApi().connectToSocket();
-    StudentApi().listenOnSession(sessionId, (data) {
-      setState(() {});
+    StudentApi().connectToSocket(sessionId, (newPoints) {
+      setState(() {
+        _points = newPoints;
+      });
     });
     super.initState();
   }

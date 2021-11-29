@@ -12,9 +12,13 @@ class _InteractiveWhiteBoardState extends State<InteractiveWhiteBoard> {
   late String sessionId = '';
   @override
   void initState() {
-    sessionId = "IgvJwEmHXunXqbwJrVgko";
+    sessionId = "FdZBHcEJlQZEYs9cG4vf5";
     TeacherApi().connectToSocket();
-    TeacherApi().listenTest(sessionId);
+    TeacherApi().listenTest(sessionId, (newPoints) {
+      setState(() {
+        _points = newPoints;
+      });
+    });
     super.initState();
   }
 

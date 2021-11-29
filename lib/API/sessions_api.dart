@@ -1,9 +1,6 @@
 import 'dart:convert';
-
 import 'package:live_whiteboard/Helpers/constants.dart';
 import 'package:live_whiteboard/Models/sessions.dart';
-import 'package:socket_io_client/socket_io_client.dart' as IO;
-import 'package:socket_io_client/socket_io_client.dart';
 import 'package:http/http.dart' as http;
 
 class SessionsApi {

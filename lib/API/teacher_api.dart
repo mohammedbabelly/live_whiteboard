@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:live_whiteboard/Helpers/constants.dart';
 import 'package:live_whiteboard/Models/my_offset.dart';
-import 'package:live_whiteboard/Models/sessions.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:socket_io_client/socket_io_client.dart';
 import 'package:http/http.dart' as http;
@@ -11,6 +10,7 @@ class TeacherApi {
   static late IO.Socket? socket;
   IO.Socket connectToSocket() {
     final socketUrl = '${Constants.baseUrl}';
+    socket = null;
     socket = IO.io(
       socketUrl,
       OptionBuilder()
@@ -22,9 +22,12 @@ class TeacherApi {
 
     socket!.onConnect((_) {
       print('Teacher socket connected on $socketUrl');
-      socket!.emit("IgvJwEmHXunXqbwJrVgko", "From mobile");
+      print("socketId = ${socket!.id}");
     });
-    socket!.onDisconnect((_) => print('Teacher socket is disconnect!'));
+    socket!.onDisconnect((_) {
+      print('Teacher socket is disconnect!');
+      socket!.dispose();
+    });
     socket!.onConnectError(
         (data) => print('Error connecting to teacher socket: $data'));
     socket!.onConnectTimeout(
@@ -37,29 +40,35 @@ class TeacherApi {
   void emitNewOffsets(List<Offset?> points, String sessionId) {
     try {
       if (socket != null && socket!.connected) {
-        var list = points
-            .map((e) => e != null ? MyOffset.fromOffset(e) : true)
-            .toList();
+        var list = points.map((e) {
+          if (e != null) return MyOffset.fromOffset(e);
+        }).toList();
         var data = json.encode(list);
-        socket!.emit(sessionId, {"id": "1", "typing": "typing"});
-        socket!.emitWithAck(sessionId, 'init', ack: (data) {
-          print('ack $data');
-          if (data != null) {
-            print('from server $data');
-          } else {
-            print("Null");
-          }
-        });
+        socket!.emit(sessionId, data);
       }
     } catch (_) {
       print('error emitting: _');
     }
   }
 
-  void listenTest(String sessionId) {
-    socket!.on(sessionId, (data) => print('Data from socket: $data'));
+  void listenTest(String sessionId, Function onChanged) {
+    socket!.on(sessionId, (data) {
+      try {
+        print('Data from socket: $data');
+        List decodedData = json.decode(data['data']);
+        List<Offset?> newPointes = decodedData.map((e) {
+          if (e != null) return MyOffset.fromJson(e).toOffset();
+        }).toList();
+        return newPointes;
+      } catch (_) {
+        print('error emitting: _');
+      }
+      onChanged(data);
+    });
   }
 
+  //join$sessionID
+  //exit$sessionID
   Future<void> startSession(String sessionId) async {
     try {
       var url = Uri.parse('${Constants.baseUrl}/api/session/$sessionId');

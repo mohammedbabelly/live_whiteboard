@@ -1,10 +1,14 @@
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
 import 'package:live_whiteboard/Helpers/constants.dart';
+import 'package:live_whiteboard/Models/my_offset.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:socket_io_client/socket_io_client.dart';
 
 class StudentApi {
   static late IO.Socket? socket;
-  IO.Socket connectToSocket() {
+  IO.Socket connectToSocket(String sessionId, Function onChanged) {
     final socketUrl = '${Constants.baseUrl}';
     socket = IO.io(
       socketUrl,
@@ -17,6 +21,7 @@ class StudentApi {
 
     socket!.onConnect((_) {
       print('Student socket connected on $socketUrl');
+      listenOnSession(sessionId, onChanged);
     });
     socket!.onDisconnect((_) => print('Student socket is disconnect!'));
     socket!.onConnectError(
@@ -30,7 +35,22 @@ class StudentApi {
 
   void listenOnSession(String sessionId, Function onChanged) {
     if (socket != null && socket!.connected) {
-      socket!.on(sessionId, (data) => onChanged(data));
+      socket!.on(sessionId, (data) {
+        try {
+          print('Data from socket: $data');
+          List decodedData = json.decode(data['data']);
+          List<Offset?> newPointes = decodedData.map((e) {
+            if (e != null) return MyOffset.fromJson(e).toOffset();
+          }).toList();
+          // var list = points
+          //     .map((e) => e != null ? MyOffset.fromOffset(e) : true)
+          //     .toList();
+          onChanged(newPointes);
+        } catch (_) {
+          print('error emitting: _');
+        }
+        // onChanged(data);
+      });
     }
   }
 }
