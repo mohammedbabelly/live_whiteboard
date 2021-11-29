@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:live_whiteboard/API/sessions_api.dart';
 import 'package:live_whiteboard/Models/sessions.dart';
+import 'package:live_whiteboard/Pages/student_whiteboard.dart';
+
+import 'interactive_session.dart';
 
 class ActiveSessionsPage extends StatefulWidget {
   @override
@@ -48,7 +51,13 @@ class _ActiveSessionsPageState extends State<ActiveSessionsPage> {
             return ListTile(
               title: Text(session.sessionName),
               subtitle: Text(session.sessionId),
-              trailing: TextButton(onPressed: () {}, child: Text("Join")),
+              trailing: TextButton(
+                  onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) =>
+                              StudentWhiteBoard(session.sessionId))),
+                  child: Text("Join")),
             );
           },
         ),
@@ -70,7 +79,8 @@ class _ActiveSessionsPageState extends State<ActiveSessionsPage> {
           IconButton(
             icon: Icon(Icons.add),
             onPressed: () {
-              // setState(() {});
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => InteractiveWhiteBoard()));
             },
           ),
         ]);

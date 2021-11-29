@@ -18,13 +18,10 @@ class MyOffset {
 
   Offset toOffset() => Offset(x, y);
 
-  factory MyOffset.fromJson(Map<String, dynamic> json) => MyOffset(
-        json["x"].toDouble(),
-        json["y"].toDouble(),
-      );
+  factory MyOffset.fromOffset(Offset? offset) =>
+      MyOffset(offset!.dx, offset.dy);
+  factory MyOffset.fromJson(Map<String, dynamic> json) =>
+      MyOffset(json["x"].toDouble(), json["y"].toDouble());
 
-  Map<String, dynamic> toJson() => {
-        "x": x,
-        "y": y,
-      };
+  Map<String, dynamic> toJson() => {"x": x, "y": y};
 }
