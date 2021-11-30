@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:live_whiteboard/Helpers/constants.dart';
 
 class MyOffset {
   MyOffset(
@@ -16,7 +17,9 @@ class MyOffset {
 
   String toRawJson() => json.encode(toJson());
 
-  Offset toOffset() => Offset(x, y);
+  Offset toLocalOffset(RenderBox box) => box.globalToLocal(Offset(x, y));
+  Offset toOffset() =>
+      Offset(Constants.screenWidth / x, Constants.screenHeight / y);
 
   factory MyOffset.fromOffset(Offset? offset) =>
       MyOffset(offset!.dx, offset.dy);
@@ -25,3 +28,5 @@ class MyOffset {
 
   Map<String, dynamic> toJson() => {"x": x, "y": y};
 }
+
+class MyRenderBox extends RenderBox {}

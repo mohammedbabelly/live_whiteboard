@@ -8,7 +8,10 @@ class SessionsApi {
     try {
       var url = Uri.parse('${Constants.baseUrl}/api/session');
       print(url);
-      var response = await http.get(url);
+      var response = await http.get(url, headers: {
+        "Accept": "application/json",
+        "Access-Control-Allow-Origin": "*"
+      });
       print('Response status: ${response.statusCode}');
       if (Constants.successStatusCodes.contains(response.statusCode)) {
         var result = <Session>[];
@@ -19,7 +22,7 @@ class SessionsApi {
       } else
         throw Exception();
     } catch (_) {
-      print("Could not get the sessions.");
+      print("Could not get the sessions. $_");
       return [];
     }
   }

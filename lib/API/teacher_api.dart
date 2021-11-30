@@ -50,22 +50,6 @@ class TeacherApi {
     }
   }
 
-  void listenTest(String sessionId, Function onChanged) {
-    socket!.on(sessionId, (data) {
-      try {
-        print('Data from socket: $data');
-        List decodedData = json.decode(data['data']);
-        List<Offset?> newPointes = decodedData.map((e) {
-          if (e != null) return MyOffset.fromJson(e).toOffset();
-        }).toList();
-        return newPointes;
-      } catch (_) {
-        print('error emitting: _');
-      }
-      onChanged(data);
-    });
-  }
-
   //join$sessionID
   //exit$sessionID
   Future<void> startSession(String sessionId) async {

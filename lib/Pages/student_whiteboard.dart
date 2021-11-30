@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:live_whiteboard/API/student_api.dart';
+import 'package:live_whiteboard/Helpers/constants.dart';
 import 'package:live_whiteboard/Widgets/whiteboard.dart';
 
 class StudentWhiteBoard extends StatefulWidget {
@@ -15,6 +16,7 @@ class _StudentWhiteBoardState extends State<StudentWhiteBoard> {
   @override
   void initState() {
     sessionId = widget.sessionId;
+
     StudentApi().connectToSocket(sessionId, (newPoints) {
       setState(() {
         _points = newPoints;
@@ -31,6 +33,7 @@ class _StudentWhiteBoardState extends State<StudentWhiteBoard> {
 
   @override
   Widget build(BuildContext context) {
+    updateScreenSize(MediaQuery.of(context).size);
     return Scaffold(
       appBar:
           AppBar(title: Text(sessionId, style: TextStyle(color: Colors.white))),
@@ -42,4 +45,9 @@ class _StudentWhiteBoardState extends State<StudentWhiteBoard> {
       ),
     );
   }
+}
+
+void updateScreenSize(Size size) {
+  Constants.screenHeight = size.height;
+  Constants.screenWidth = size.width;
 }

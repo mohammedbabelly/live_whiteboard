@@ -39,12 +39,12 @@ class StudentApi {
         try {
           print('Data from socket: $data');
           List decodedData = json.decode(data['data']);
+          var myRenderBox = MyRenderBox();
           List<Offset?> newPointes = decodedData.map((e) {
+            if (e != null)
+            // return MyOffset.fromJson(e).toLocalOffset(myRenderBox);
             if (e != null) return MyOffset.fromJson(e).toOffset();
           }).toList();
-          // var list = points
-          //     .map((e) => e != null ? MyOffset.fromOffset(e) : true)
-          //     .toList();
           onChanged(newPointes);
         } catch (_) {
           print('error emitting: _');

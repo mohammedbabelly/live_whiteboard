@@ -53,11 +53,13 @@ class _ActiveSessionsPageState extends State<ActiveSessionsPage> {
               title: Text(session.sessionName),
               subtitle: Text(session.sessionId),
               trailing: TextButton(
-                  onPressed: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) =>
-                              StudentWhiteBoard(session.sessionId))),
+                  onPressed: () async {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) =>
+                                StudentWhiteBoard(session.sessionId)));
+                  },
                   child: Text("Join")),
             );
           },

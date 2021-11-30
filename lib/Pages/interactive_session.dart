@@ -11,17 +11,13 @@ class InteractiveWhiteBoard extends StatefulWidget {
 }
 
 class _InteractiveWhiteBoardState extends State<InteractiveWhiteBoard> {
-  List<Offset?> _points = <Offset>[];
+  List<Offset?> globalPoints = <Offset>[];
+  List<Offset?> localPoints = <Offset>[];
   late String sessionId = '';
   @override
   void initState() {
     sessionId = widget.sessionId;
     TeacherApi().connectToSocket();
-    TeacherApi().listenTest(sessionId, (newPoints) {
-      setState(() {
-        _points = newPoints;
-      });
-    });
     super.initState();
   }
 
@@ -33,6 +29,7 @@ class _InteractiveWhiteBoardState extends State<InteractiveWhiteBoard> {
 
   @override
   Widget build(BuildContext context) {
+    var screenSize = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.sessionName, style: TextStyle(color: Colors.white)),
@@ -48,24 +45,24 @@ class _InteractiveWhiteBoardState extends State<InteractiveWhiteBoard> {
           onPanUpdate: (DragUpdateDetails details) {
             if (sessionId.isNotEmpty) {
               setState(() {
-                // var newOffset = MyOffset(
-                //     details.localPosition.dx, details.localPosition.dy);
-                // var encoded = newOffset.toRawJson();
-                // MyOffset decoded = MyOffset.fromRawJson(encoded);
-                _points = List.from(_points)
+                localPoints = List.from(localPoints)
                   ..add(Offset(
                       details.localPosition.dx, details.localPosition.dy));
+                globalPoints = List.from(globalPoints)
+                  ..add(Offset(screenSize.width / details.localPosition.dx,
+                      screenSize.height / details.localPosition.dy));
               });
             }
           },
           onPanEnd: (DragEndDetails details) {
             if (sessionId.isNotEmpty) {
-              _points.add(null);
-              TeacherApi().emitNewOffsets(_points, sessionId);
+              localPoints.add(null);
+              globalPoints.add(null);
+              TeacherApi().emitNewOffsets(globalPoints, sessionId);
             }
           },
           child: CustomPaint(
-            painter: WhiteBoard(_points),
+            painter: WhiteBoard(localPoints),
             size: Size.infinite,
           ),
         ),
@@ -73,47 +70,11 @@ class _InteractiveWhiteBoardState extends State<InteractiveWhiteBoard> {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.clear),
         onPressed: () {
-          _points.clear();
-          TeacherApi().emitNewOffsets(_points, sessionId);
+          localPoints.clear();
+          globalPoints.clear();
+          TeacherApi().emitNewOffsets(globalPoints, sessionId);
         },
       ),
     );
   }
-
-  // void connect() async {
-  //   final socketUrl = '${Constants.baseUrl}';
-  //   print('trying to connect to $socketUrl');
-
-  //   socket = IO.io('https://share--screen.herokuapp.com', <String, dynamic>{
-  //     'transports': [
-  //       'websocket',
-  //       // 'flashsocket',
-  //       // 'htmlfile',
-  //       // 'xhr-polling',
-  //       // 'jsonp-polling',
-  //       // 'polling'
-  //     ],
-  //     'autoConnect': false,
-  //   });
-  //   socket.connect();
-  //   socket.onConnect((_) {
-  //     print('connect');
-  //     socket.emit('msg', 'test');
-  //   });
-  //   socket.on('event', (data) => print(data));
-  //   socket.onDisconnect((_) => print('disconnect'));
-  //   socket.on('fromServer', (_) => print(_));
-  //   socket.onConnectError((data) => print('error connecting: $data'));
-  //   socket.onConnectTimeout((data) => 'connecting timeout: $data');
-  //   socket.onConnecting((data) => "connecting...");
-  //   socket.onConnect((_) {
-  //     print('connected to $socketUrl');
-  //     setState(() {});
-  //     // socket.emit('msg', 'test');
-  //   });
-  //   socket.on(sessionId, (data) => print('data from socket: $data'));
-  //   socket.onDisconnect((_) => print('disconnected from $socketUrl'));
-  //   // socket.on('fromServer', (_) => print(_));
-  // }
-
 }
