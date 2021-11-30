@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:live_whiteboard/API/sessions_api.dart';
+import 'package:live_whiteboard/API/student_api.dart';
 import 'package:live_whiteboard/API/teacher_api.dart';
 import 'package:live_whiteboard/Models/sessions.dart';
 import 'package:live_whiteboard/Pages/student_whiteboard.dart';
@@ -54,6 +55,7 @@ class _ActiveSessionsPageState extends State<ActiveSessionsPage> {
               subtitle: Text(session.sessionId),
               trailing: TextButton(
                   onPressed: () async {
+                    await StudentApi().getSession(session.sessionId);
                     Navigator.push(
                         context,
                         MaterialPageRoute(

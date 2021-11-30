@@ -13,6 +13,7 @@ class StudentWhiteBoard extends StatefulWidget {
 class _StudentWhiteBoardState extends State<StudentWhiteBoard> {
   List<Offset?> _points = <Offset>[];
   late String sessionId = '';
+  int membersCount = 0;
   @override
   void initState() {
     sessionId = widget.sessionId;
@@ -21,12 +22,17 @@ class _StudentWhiteBoardState extends State<StudentWhiteBoard> {
       setState(() {
         _points = newPoints;
       });
+    }, (n) {
+      setState(() {
+        membersCount = n;
+      });
     });
     super.initState();
   }
 
   @override
   void dispose() {
+    StudentApi().exitSocket(sessionId);
     StudentApi.socket!.disconnect();
     super.dispose();
   }

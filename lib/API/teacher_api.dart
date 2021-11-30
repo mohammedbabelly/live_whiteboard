@@ -9,24 +9,25 @@ import 'package:http/http.dart' as http;
 
 class TeacherApi {
   static late IO.Socket? socket;
-  IO.Socket connectToSocket() {
+  IO.Socket connectToSocket(String sessionId, Function whenSomeoneJoin) {
     final socketUrl = '${Constants.baseUrl}';
     socket = IO.io(
       socketUrl,
       OptionBuilder()
           .setTransports(['websocket'])
-          .enableAutoConnect()
+          .disableAutoConnect()
           .enableReconnection()
           .build(),
     );
-
+    socket!.connect();
     socket!.onConnect((_) {
       print('Teacher socket connected on $socketUrl');
-      // print("socketId = ${socket!.id}");
+      socket!.on(sessionId + "Count", (data) {
+        print("someone joined: $data");
+      });
     });
     socket!.onDisconnect((_) {
       print('Teacher socket is disconnect!');
-      socket = null;
     });
     socket!.onConnectError(
         (data) => print('Error connecting to teacher socket: $data'));
@@ -46,12 +47,10 @@ class TeacherApi {
         socket!.emit(sessionId, json.encode(list));
       }
     } catch (_) {
-      print('error emitting: _');
+      print('error emitting: $_');
     }
   }
 
-  //join$sessionID
-  //exit$sessionID
   Future<void> startSession(String sessionId) async {
     try {
       //BotToast.showLoading(clickClose: true);

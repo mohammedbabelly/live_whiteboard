@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:live_whiteboard/API/teacher_api.dart';
+import 'package:live_whiteboard/Helpers/constants.dart';
 import 'package:live_whiteboard/Widgets/whiteboard.dart';
+
+import 'student_whiteboard.dart';
 
 class InteractiveWhiteBoard extends StatefulWidget {
   final String sessionId;
@@ -14,30 +17,35 @@ class _InteractiveWhiteBoardState extends State<InteractiveWhiteBoard> {
   List<Offset?> globalPoints = <Offset>[];
   List<Offset?> localPoints = <Offset>[];
   late String sessionId = '';
+  int membersCount = 0;
+  bool sessionStarted = false;
   @override
   void initState() {
     sessionId = widget.sessionId;
-    TeacherApi().connectToSocket();
+    TeacherApi().connectToSocket(sessionId, (n) {
+      setState(() {
+        membersCount = n;
+      });
+    });
     super.initState();
   }
 
   @override
-  void dispose() {
-    TeacherApi.socket!.disconnect();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    var screenSize = MediaQuery.of(context).size;
+    updateScreenSize(MediaQuery.of(context).size);
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.sessionName, style: TextStyle(color: Colors.white)),
         actions: [
-          TextButton(
-              onPressed: () async => await TeacherApi().startSession(sessionId),
-              child:
-                  Text("Start session", style: TextStyle(color: Colors.white)))
+          if (!sessionStarted)
+            TextButton(
+                onPressed: () async => await TeacherApi()
+                    .startSession(sessionId)
+                    .whenComplete(() => setState(() {
+                          sessionStarted = true;
+                        })),
+                child: Text("Start session",
+                    style: TextStyle(color: Colors.white)))
         ],
       ),
       body: Container(
@@ -49,8 +57,8 @@ class _InteractiveWhiteBoardState extends State<InteractiveWhiteBoard> {
                   ..add(Offset(
                       details.localPosition.dx, details.localPosition.dy));
                 globalPoints = List.from(globalPoints)
-                  ..add(Offset(screenSize.width / details.localPosition.dx,
-                      screenSize.height / details.localPosition.dy));
+                  ..add(Offset(Constants.screenWidth / details.localPosition.dx,
+                      Constants.screenHeight / details.localPosition.dy));
               });
             }
           },
