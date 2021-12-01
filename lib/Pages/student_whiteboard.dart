@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:live_whiteboard/API/student_api.dart';
 import 'package:live_whiteboard/Helpers/constants.dart';
+import 'package:live_whiteboard/Models/my_offset.dart';
 import 'package:live_whiteboard/Widgets/whiteboard.dart';
 
 class StudentWhiteBoard extends StatefulWidget {
@@ -11,7 +12,7 @@ class StudentWhiteBoard extends StatefulWidget {
 }
 
 class _StudentWhiteBoardState extends State<StudentWhiteBoard> {
-  List<Offset?> _points = <Offset>[];
+  List<MyOffset?> _points = <MyOffset>[];
   late String sessionId = '';
   int membersCount = 0;
   @override

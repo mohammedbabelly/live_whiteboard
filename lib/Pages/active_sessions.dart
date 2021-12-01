@@ -19,59 +19,60 @@ class _ActiveSessionsPageState extends State<ActiveSessionsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: appBarWidget(),
-        body: data != null
-            ? _buildBody()
-            : FutureBuilder<List<Session>>(
-                future: SessionsApi.getActiveSessions(),
-                builder: (context, _snapshot) {
-                  if (_snapshot.data != null) data = _snapshot.data!;
-                  return _snapshot.connectionState == ConnectionState.waiting
-                      ? Center(child: CircularProgressIndicator())
-                      : _snapshot.data!.isNotEmpty
-                          ? _snapshot.hasError
-                              ? Center(
-                                  child: InkWell(
-                                      onTap: () {
-                                        setState(() {});
-                                      },
-                                      child: Text("Something went wrong!!")),
-                                )
-                              : _buildBody()
-                          : Center(
-                              child: Text(
-                                  "No Active Sessions tab + to create one"));
-                },
-              ));
+        body: RefreshIndicator(
+            child: data != null
+                ? _buildBody()
+                : FutureBuilder<List<Session>>(
+                    future: SessionsApi.getActiveSessions(),
+                    builder: (context, _snapshot) {
+                      if (_snapshot.data != null) data = _snapshot.data!;
+                      return _snapshot.connectionState ==
+                              ConnectionState.waiting
+                          ? Center(child: CircularProgressIndicator())
+                          : _snapshot.data!.isNotEmpty
+                              ? _snapshot.hasError
+                                  ? Center(
+                                      child: InkWell(
+                                          onTap: () {
+                                            setState(() {});
+                                          },
+                                          child:
+                                              Text("Something went wrong!!")),
+                                    )
+                                  : _buildBody()
+                              : Center(
+                                  child: Text(
+                                      "No Active Sessions tab + to create one"));
+                    },
+                  ),
+            onRefresh: () {
+              setState(() {
+                data = null;
+              });
+              return Future.value(true);
+            }));
   }
 
   _buildBody() {
-    return RefreshIndicator(
-        child: ListView.builder(
-          itemCount: data!.length,
-          itemBuilder: (context, index) {
-            var session = data![index];
-            return ListTile(
-              title: Text(session.sessionName),
-              subtitle: Text(session.sessionId),
-              trailing: TextButton(
-                  onPressed: () async {
-                    await StudentApi().getSession(session.sessionId);
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) =>
-                                StudentWhiteBoard(session.sessionId)));
-                  },
-                  child: Text("Join")),
-            );
-          },
-        ),
-        onRefresh: () {
-          setState(() {
-            data = null;
-          });
-          return Future.value(true);
-        });
+    return ListView.builder(
+      itemCount: data!.length,
+      itemBuilder: (context, index) {
+        var session = data![index];
+        return ListTile(
+          title: Text(session.sessionName),
+          subtitle: Text(session.sessionId),
+          trailing: TextButton(
+              onPressed: () async {
+                await StudentApi().getSession(session.sessionId);
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => StudentWhiteBoard(session.sessionId)));
+              },
+              child: Text("Join")),
+        );
+      },
+    );
   }
 
   appBarWidget() {

@@ -4,13 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:live_whiteboard/Helpers/constants.dart';
 
 class MyOffset {
-  MyOffset(
-    this.x,
-    this.y,
-  );
+  MyOffset(this.x, this.y, this.color);
 
   final double x;
   final double y;
+  final Color color;
 
   factory MyOffset.fromRawJson(String str) =>
       MyOffset.fromJson(json.decode(str));
@@ -21,12 +19,12 @@ class MyOffset {
   Offset toOffset() =>
       Offset(Constants.screenWidth / x, Constants.screenHeight / y);
 
-  factory MyOffset.fromOffset(Offset? offset) =>
-      MyOffset(offset!.dx, offset.dy);
-  factory MyOffset.fromJson(Map<String, dynamic> json) =>
-      MyOffset(json["x"].toDouble(), json["y"].toDouble());
+  // factory MyOffset.fromOffset(Offset? offset) =>
+  //     MyOffset(offset!.dx, offset.dy);
+  factory MyOffset.fromJson(Map<String, dynamic> json) => MyOffset(
+      json["x"].toDouble(), json["y"].toDouble(), Color(json["color"]));
 
-  Map<String, dynamic> toJson() => {"x": x, "y": y};
+  Map<String, dynamic> toJson() => {"x": x, "y": y, "color": color.value};
 }
 
 class MyRenderBox extends RenderBox {}

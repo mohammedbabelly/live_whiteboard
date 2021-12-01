@@ -63,9 +63,8 @@ class StudentApi {
         try {
           print('Data from socket: $data');
           List decodedData = json.decode(data['data']);
-          List<Offset?> newPointes = decodedData.map((e) {
-            if (e != null) if (e != null)
-              return MyOffset.fromJson(e).toOffset();
+          List<MyOffset?> newPointes = decodedData.map((e) {
+            if (e != null) if (e != null) return MyOffset.fromJson(e);
           }).toList();
           onChanged(newPointes);
         } catch (_) {

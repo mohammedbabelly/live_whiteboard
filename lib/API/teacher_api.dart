@@ -38,13 +38,13 @@ class TeacherApi {
     return socket!;
   }
 
-  void emitNewOffsets(List<Offset?> points, String sessionId) {
+  void emitNewOffsets(List<MyOffset?> points, String sessionId) {
     try {
       if (socket != null && socket!.connected) {
-        var list = points.map((e) {
-          if (e != null) return MyOffset.fromOffset(e);
-        }).toList();
-        socket!.emit(sessionId, json.encode(list));
+        // var list = points.map((e) {
+        //   if (e != null) return MyOffset.fromOffset(e);
+        // }).toList();c
+        socket!.emit(sessionId, json.encode(points));
       }
     } catch (_) {
       print('error emitting: $_');
